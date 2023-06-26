@@ -8,27 +8,30 @@ public class PlayerFreeLookState : PlayerBaseState {
     private readonly int FREE_LOOK_BLEND_TREE_HASH = Animator.StringToHash("FreeLookBlendTree");
     
     private const float ANIMATOR_DAMP_TIME = 0.1f;
+    private const float CROSS_FADE_DURATION = 0.1f;
 
     public PlayerFreeLookState(PlayerStateMachine stateMachine) : base(stateMachine) { }
 
     public override void Enter() {
         stateMachine.InputReader.TargetEvent += ToggleTargeting;
-        stateMachine.Animator.Play(FREE_LOOK_BLEND_TREE_HASH);
+        stateMachine.Animator.CrossFadeInFixedTime(FREE_LOOK_BLEND_TREE_HASH, CROSS_FADE_DURATION);
     }
 
     public override void Tick(float deltaTime) {
-        Vector3 movement = CalculateMovement();
-
-        Move(movement * stateMachine.FreeLookMovementSpeed, Time.deltaTime);
-
-        if (stateMachine.InputReader.MovementValue == Vector2.zero) {
-            stateMachine.Animator.SetFloat(FREE_LOOK_SPEED_HASH, 0, ANIMATOR_DAMP_TIME, deltaTime);
+        if (stateMachine.InputReader.IsAttacking) {
+            stateMachine.SwitchState(new PlayerAttackingState(stateMachine, 0));
             return;
         }
 
-        stateMachine.Animator.SetFloat(FREE_LOOK_SPEED_HASH, 1, ANIMATOR_DAMP_TIME, deltaTime);
-        
-        FaceMovementDirection(movement, deltaTime);
+        Vector3 movement = CalculateMovement();
+
+        if (movement != Vector3.zero) {
+            FaceMovementDirection(movement, deltaTime);
+        }
+
+        Move(movement * stateMachine.FreeLookMovementSpeed, Time.deltaTime);
+
+        stateMachine.Animator.SetFloat(FREE_LOOK_SPEED_HASH, stateMachine.InputReader.MovementValue.magnitude, ANIMATOR_DAMP_TIME, deltaTime);
     }
 
     public override void Exit() {
