@@ -11,6 +11,8 @@ public class PlayerStateMachine : StateMachine
     [field: SerializeField] public ForceReceiver ForceReceiver { get; private set; }
     [field: SerializeField] public Attack[] Attacks { get; private set; }
     [field: SerializeField] public WeaponDamage WeaponDamage { get; private set; }
+    [field: SerializeField] public Health Health { get; private set; }
+    [field: SerializeField] public Ragdoll Ragdoll { get; private set; }
     [field: SerializeField] public float FreeLookMovementSpeed { get; private set; }
     [field: SerializeField] public float TargetingMovementSpeed { get; private set; }
     [field: SerializeField] public float RotationDamping { get; private set; }
@@ -21,5 +23,23 @@ public class PlayerStateMachine : StateMachine
         Cursor.visible = false;
         MainCameraTransform = Camera.main.transform;
         SwitchState(new PlayerFreeLookState(this));
+    }
+
+    private void OnEnable() {
+        Health.OnTakeDamage += Impact;
+        Health.OnDie += Die;
+    }
+
+    private void OnDisable() {
+        Health.OnTakeDamage -= Impact;
+        Health.OnDie -= Die;
+    }
+
+    private void Impact() {
+        SwitchState(new PlayerImpactState(this));
+    }
+
+    private void Die() {
+        SwitchState(new PlayerDeadState(this));
     }
 }
