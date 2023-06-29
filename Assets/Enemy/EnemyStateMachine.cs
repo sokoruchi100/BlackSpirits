@@ -19,10 +19,10 @@ public class EnemyStateMachine : StateMachine
     [field: SerializeField] public float AttackRange { get; private set; }
     [field: SerializeField] public int AttackDamage { get; private set; }
     [field: SerializeField] public float AttackKnockback { get; private set; }
-    public GameObject Player { get; private set; }
+    public Health PlayerHealth { get; private set; }
 
     private void Start() {
-        Player = GameObject.FindGameObjectWithTag(PLAYER_TAG);
+        PlayerHealth = GameObject.FindGameObjectWithTag(PLAYER_TAG).GetComponent<Health>();
         NavMeshAgent.updatePosition = false;
         NavMeshAgent.updateRotation = false;
         SwitchState(new EnemyIdleState(this));

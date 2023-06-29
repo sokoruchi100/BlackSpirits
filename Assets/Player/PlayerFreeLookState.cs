@@ -9,17 +9,32 @@ public class PlayerFreeLookState : PlayerBaseState {
     
     private const float ANIMATOR_DAMP_TIME = 0.1f;
     private const float CROSS_FADE_DURATION = 0.1f;
-
-    public PlayerFreeLookState(PlayerStateMachine stateMachine) : base(stateMachine) { }
+    private bool shouldFade;
+    public PlayerFreeLookState(PlayerStateMachine stateMachine, bool shouldFade = true) : base(stateMachine) {
+        this.shouldFade = shouldFade;
+    }
 
     public override void Enter() {
         stateMachine.InputReader.TargetEvent += ToggleTargeting;
-        stateMachine.Animator.CrossFadeInFixedTime(FREE_LOOK_BLEND_TREE_HASH, CROSS_FADE_DURATION);
+        stateMachine.InputReader.JumpEvent += OnJump;
+
+        stateMachine.Animator.SetFloat(FREE_LOOK_SPEED_HASH, 0);
+
+        if (shouldFade) {
+            stateMachine.Animator.CrossFadeInFixedTime(FREE_LOOK_BLEND_TREE_HASH, CROSS_FADE_DURATION);
+        } else {
+            stateMachine.Animator.Play(FREE_LOOK_BLEND_TREE_HASH);
+        }
     }
 
     public override void Tick(float deltaTime) {
         if (stateMachine.InputReader.IsAttacking) {
             stateMachine.SwitchState(new PlayerAttackingState(stateMachine, 0));
+            return;
+        }
+
+        if (stateMachine.InputReader.IsBlocking) {
+            stateMachine.SwitchState(new PlayerBlockingState(stateMachine));
             return;
         }
 
@@ -36,6 +51,11 @@ public class PlayerFreeLookState : PlayerBaseState {
 
     public override void Exit() {
         stateMachine.InputReader.TargetEvent -= ToggleTargeting;
+        stateMachine.InputReader.JumpEvent -= OnJump;
+    }
+
+    private void OnJump() {
+        stateMachine.SwitchState(new PlayerJumpingState(stateMachine));
     }
 
     private Vector3 CalculateMovement() {

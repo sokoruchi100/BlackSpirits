@@ -13,10 +13,16 @@ public class PlayerStateMachine : StateMachine
     [field: SerializeField] public WeaponDamage WeaponDamage { get; private set; }
     [field: SerializeField] public Health Health { get; private set; }
     [field: SerializeField] public Ragdoll Ragdoll { get; private set; }
+    [field: SerializeField] public LedgeDetector LedgeDetector { get; private set; }
     [field: SerializeField] public float FreeLookMovementSpeed { get; private set; }
     [field: SerializeField] public float TargetingMovementSpeed { get; private set; }
     [field: SerializeField] public float RotationDamping { get; private set; }
+    [field: SerializeField] public float DodgeDuration { get; private set; }
+    [field: SerializeField] public float DodgeDistance { get; private set; }
+    [field: SerializeField] public float DodgeCooldown { get; private set; }
+    [field: SerializeField] public float JumpForce { get; private set; }
     public Transform MainCameraTransform { get; private set; }
+    public float PreviousDodgeTime { get; private set; } = Mathf.NegativeInfinity;
 
     private void Start() {
         Cursor.lockState = CursorLockMode.Locked;

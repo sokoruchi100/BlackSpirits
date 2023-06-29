@@ -9,21 +9,25 @@ public abstract class EnemyBaseState : State {
     }
 
     protected bool IsInChaseRange() {
-        Vector3 toPlayer = stateMachine.Player.transform.position - stateMachine.transform.position;
+        if (stateMachine.PlayerHealth.IsDead) return false;
+
+        Vector3 toPlayer = stateMachine.PlayerHealth.transform.position - stateMachine.transform.position;
         
         return (toPlayer.sqrMagnitude <= (stateMachine.PlayerChasingRange*stateMachine.PlayerChasingRange));
     }
 
     protected bool IsInAttackRange() {
-        Vector3 toPlayer = stateMachine.Player.transform.position - stateMachine.transform.position;
+        if (stateMachine.PlayerHealth.IsDead) return false;
+
+        Vector3 toPlayer = stateMachine.PlayerHealth.transform.position - stateMachine.transform.position;
 
         return (toPlayer.sqrMagnitude <= (stateMachine.AttackRange * stateMachine.AttackRange));
     }
 
     protected void FacePlayer() {
-        if (stateMachine.Player == null) return;
+        if (stateMachine.PlayerHealth == null) return;
 
-        Vector3 faceDirection = stateMachine.Player.transform.position - stateMachine.transform.position;
+        Vector3 faceDirection = stateMachine.PlayerHealth.transform.position - stateMachine.transform.position;
         faceDirection.y = 0;
 
         stateMachine.transform.rotation = Quaternion.LookRotation(faceDirection);

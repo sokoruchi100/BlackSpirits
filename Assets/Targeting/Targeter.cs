@@ -45,7 +45,7 @@ public class Targeter : MonoBehaviour
 
         foreach (Target target in targets) {
             Vector2 viewPos = mainCamera.WorldToViewportPoint(target.transform.position);
-            if (viewPos.x > 1 || viewPos.x < 0 || viewPos.y > 1 || viewPos.y < 0) continue;
+            if (!target.GetComponentInChildren<Renderer>().isVisible) continue;
 
             Vector2 toCenter = viewPos - new Vector2(0.5f, 0.5f);
             if (toCenter.sqrMagnitude < closestTargetDistance) {
